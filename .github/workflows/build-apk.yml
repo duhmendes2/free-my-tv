@@ -1,0 +1,73 @@
+name: Build Free My TV APK
+
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build FreeMyTV Release APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platforms;android-34 build-tools;34.0.0
+
+      - name: Configure Projector Settings
+        run: |
+          cat > config.properties <<EOF
+          tmdb_key=15d2ea6d0dc1d476efbca3eba2b9bbfb
+          tmdb_region=BR
+          latitude=-23.0333
+          longitude=-45.5556
+          city=Taubaté
+          hide_animation=false
+          language=pt
+          show_crypto=true
+          currency=BRL
+          temperature=C
+          disable_assistant=false
+          hide_services=
+          EOF
+          cat config.properties
+
+      - name: Build APK via build.sh
+        run: |
+          chmod +x build.sh
+          ./build.sh
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FreeMyTV-apk
+          path: FreeMyTV.apk
+          retention-days: 14
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref == 'refs/heads/main'
+        with:
+          tag_name: v1.1.0-projector-pt
+          name: Free My TV Projector Edition (Taubaté & TMDB Trending)
+          body: |
+            ## 🎬 Free My TV para Projetor Inteligente
+            - Integrado com TMDB API (Próximo Filme / Trending Cinema & Séries)
+            - Previsão do tempo ao vivo para Taubaté/SP (Open-Meteo)
+            - Cotações do mercado cripto em Reais (BRL)
+            - Tema dinâmico dia/noite sincronizado com o pôr do sol real
+            - Protetor de tela de cinema com fotos em 16:9 e relógio minimalista
+          files: FreeMyTV.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
