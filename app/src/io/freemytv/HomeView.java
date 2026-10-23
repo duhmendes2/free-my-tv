@@ -234,6 +234,8 @@ final class HomeView extends ViewGroup implements Choreographer.FrameCallback, H
     private long clockMinute = -1;
     private boolean okDown, backDown;
 
+    private android.graphics.Bitmap customWallpaper;
+    private long customWallpaperStamp;
     private Paint labelPaint, metaPaint, clockPaint, buttonPaint, capsuleText, tipPaint, quotePaint, staleQuote;
     private Paint rowTitle, drawerLabel, cardTitle, cardText, cardDim, cardDimRight, bigTemp, hourPaint, hourTemp;
     private Paint pricePaint, changePaint, sheetTitle;
@@ -2647,6 +2649,27 @@ final class HomeView extends ViewGroup implements Choreographer.FrameCallback, H
      * same photo almost black (or a dark gradient), drawn on top during the transition.
      */
     private void drawLightSky(Canvas c) {
+        java.io.File wp = new java.io.File("/sdcard/Android/data/com.omeda.arc/files/wallpaper.jpg");
+        if (!wp.exists()) wp = new java.io.File("/sdcard/wallpaper.jpg");
+        if (wp.exists() && wp.canRead()) {
+            long stamp = wp.lastModified();
+            if (customWallpaper == null || customWallpaperStamp != stamp) {
+                try {
+                    customWallpaper = android.graphics.BitmapFactory.decodeFile(wp.getAbsolutePath());
+                    customWallpaperStamp = stamp;
+                } catch (Throwable ignored) {
+                    customWallpaper = null;
+                }
+            }
+        }
+        if (customWallpaper != null) {
+            c.drawBitmap(customWallpaper, null, screen, null);
+            fill.setShader(null);
+            fill.setColorFilter(null);
+            fill.setColor(0x55000000);
+            c.drawRect(screen, fill);
+            return;
+        }
         long up = SystemClock.uptimeMillis();
         float e = bgFadeAt == 0 ? 1 : fadeEase(bgFadeAt, up);
         boolean fading = bgFadeAt != 0;

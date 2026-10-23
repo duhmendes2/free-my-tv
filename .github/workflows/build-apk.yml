@@ -28,7 +28,7 @@ jobs:
       - name: Configure Projector Settings
         run: |
           cat > config.properties <<EOF
-          tmdb_key=15d2ea6d0dc1d476efbca3eba2b9bbfb
+          tmdb_key=
           tmdb_region=BR
           latitude=-23.0333
           longitude=-45.5556
@@ -59,8 +59,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: github.ref == 'refs/heads/main'
         with:
-          tag_name: v1.1.0-projector-pt
-          name: Free My TV Projector Edition (Taubaté & TMDB Trending)
+          tag_name: v1.2.0-projector-clean
+          name: Free My TV Projector Edition (Silent, No Movies, Weather & Shelf)
           body: |
             ## 🎬 Free My TV para Projetor Inteligente
             - Integrado com TMDB API (Próximo Filme / Trending Cinema & Séries)
